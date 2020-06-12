@@ -60,6 +60,7 @@ namespace MvcDemo.MiddlewareExtensions
                     opt.ReturnUrlParameter = "returnUrl";
                     opt.ExpireTimeSpan = TimeSpan.FromMinutes(20);
                     opt.Cookie.Name = ".pma.vj12.jwt.Cookie";
+                    // For some reason, Cookies is not generated with code below
                     // opt.Cookie = new CookieBuilder
                     // {
                     //     Name = ".pma.vj12.Cookie",
