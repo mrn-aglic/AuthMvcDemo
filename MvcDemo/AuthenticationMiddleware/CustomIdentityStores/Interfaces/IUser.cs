@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.Interfaces
 {
     public interface IUser<T>
@@ -6,5 +8,7 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.Interfaces
         public string Email { get; set; }
         public string Username { get; set; }
         public string PasswordHash { get; set; }
+        
+        // public IEnumerable<>
     }
 }
