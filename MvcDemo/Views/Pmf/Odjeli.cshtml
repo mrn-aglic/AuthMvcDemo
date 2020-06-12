@@ -1,0 +1,21 @@
+@model DepartmentsVm
+
+@{
+    ViewBag.Title = "Lista odjela";
+    Layout = "_Layout";
+}
+
+<h2>Lista odjela</h2>
+
+<ul>
+    @foreach (var odjel in Model.Departments)
+    {
+        <li>@odjel.Name</li>
+    }
+</ul>
+
+<script type="text/javascript">
+    var odjeli = '@Html.Raw(Json.Serialize(Model))';
+    var jsonOdjeli = JSON.parse(odjeli);
+    console.log(jsonOdjeli);
+</script>

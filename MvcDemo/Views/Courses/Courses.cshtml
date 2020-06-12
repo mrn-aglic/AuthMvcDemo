@@ -1,0 +1,38 @@
+@{
+    ViewBag.Title = "Kolegiji";
+    Layout = "_Layout";
+}
+
+<h2>Kolegiji</h2>
+
+<table>
+    <thead id="table-head"></thead>
+    <tbody id="table-body"></tbody>
+</table>
+
+<script type="text/javascript">
+
+    'use strict';
+    
+    function appendTableHead(single) {
+        
+        let header = domHelper.createTableHeader(single);
+        let thead = document.getElementById('table-head');
+        console.log(header)
+        thead.appendChild(header);
+    }
+    
+    function appendToTable(data){
+        
+        let rows = data.map(x => domHelper.createTableRow(x));
+        let tableBody = document.getElementById('table-body');
+        
+        appendTableHead(data[0]);
+        
+        for(let row of rows){
+            tableBody.appendChild(row);
+        }
+    }
+
+    axios.get('/api/courses').then(response => appendToTable(response.data));
+</script>
