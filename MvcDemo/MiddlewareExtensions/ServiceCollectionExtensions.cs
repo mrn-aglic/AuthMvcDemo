@@ -1,16 +1,32 @@
 using System;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using MvcDemo.AuthenticationMiddleware.JwtService;
 
 namespace MvcDemo.MiddlewareExtensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static void RegisterAuthentication(this IServiceCollection services)
+        public static void RegisterAuthentication(this IServiceCollection services, string appDiscriminator,
+            IConfiguration configuration)
         {
+            var jwtConfig = configuration.GetSection("jwtConfig").Get<JwtConfig>();
+
+            services.AddDataProtection(options =>
+                    options.ApplicationDiscriminator = appDiscriminator)
+                .SetApplicationName(appDiscriminator);
+
+            services.AddScoped<IDataSerializer<AuthenticationTicket>, TicketSerializer>();
+
+            services.AddScoped(serviceProvider => new JwtGenerator(jwtConfig));
+
             services.Configure<CookiePolicyOptions>(opt =>
             {
                 opt.Secure = CookieSecurePolicy.SameAsRequest;
@@ -18,7 +34,7 @@ namespace MvcDemo.MiddlewareExtensions
                 opt.HttpOnly = HttpOnlyPolicy.Always;
                 opt.MinimumSameSitePolicy = SameSiteMode.Lax;
             });
-            
+
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(opt =>
                 {
