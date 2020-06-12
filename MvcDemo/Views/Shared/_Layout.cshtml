@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="~/css/site.css"/>
 
     <script src="~/lib/pmf_lib.js"></script>
-    <script src="~/lib/axios.min.js"></script>    
+    <script src="~/lib/axios.min.js"></script>
 </head>
 <body>
 <header>
@@ -30,15 +30,20 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" href="/Pmfst/Odjeli">Pmf odjeli</a>
                     </li>
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" href="/Pmfst/Kolegiji">Pmf kolegiji</a>
-                        </li>
-                    }
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="/Pmfst/Kolegiji">Pmf kolegiji</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                     </li>
+                    @if (!User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="/pmfst/login">Login</a>
+                        </li>
+                    }
+
+                    <li class=""></li>
                 </ul>
             </div>
         </div>

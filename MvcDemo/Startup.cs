@@ -26,13 +26,13 @@ namespace MvcDemo
         {
             services.RegisterAuthentication("app", Configuration);
         }
-        
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().AddNewtonsoftJson();
             services.AddControllersWithViews();
-            
+
             ConfigureAuthentication(services);
         }
 
@@ -70,6 +70,11 @@ namespace MvcDemo
                     name: "PmfOdjeli",
                     pattern: "pmfst/odjeli",
                     defaults: new {controller = "pmf", action = "odjeli"}
+                );
+                endpoints.MapControllerRoute(
+                    "PmfLogin",
+                    "pmfst/login",
+                    new {controller = "authentication", action = "login"}
                 );
 
                 endpoints.MapControllerRoute(
