@@ -42,19 +42,32 @@ namespace MvcDemo.MiddlewareExtensions
                 opt.MinimumSameSitePolicy = SameSiteMode.Lax;
             });
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            services.AddAuthentication(opt =>
+                {
+                    opt.DefaultAuthenticateScheme =
+                        CookieAuthenticationDefaults.AuthenticationScheme;
+                    opt.DefaultSignInScheme =
+                        CookieAuthenticationDefaults.AuthenticationScheme;
+                    opt.DefaultChallengeScheme =
+                        CookieAuthenticationDefaults.AuthenticationScheme;
+                })
                 .AddCookie(opt =>
                 {
                     opt.TicketDataFormat = JwtAuthTicketFormat.Create(jwtConfig, serializer, dataProtector);
-                    opt.LoginPath = "/login";
-                    opt.LogoutPath = "/logout";
-                    opt.AccessDeniedPath = "/login";
+                    opt.LoginPath = "/pmfst/login";
+                    opt.LogoutPath = "/pmfst/logout";
+                    opt.AccessDeniedPath = "/pmfst/login";
                     opt.ReturnUrlParameter = "returnUrl";
-                    opt.Cookie = new CookieBuilder
-                    {
-                        Name = ".pma.vj12.Cookie",
-                        // Expiration = TimeSpan.FromMinutes(20)
-                    };
+                    opt.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+                    opt.Cookie.Name = ".pma.vj12.jwt.Cookie";
+                    // opt.Cookie = new CookieBuilder
+                    // {
+                    //     Name = ".pma.vj12.Cookie",
+                    //     HttpOnly = true,
+                    //     Path = "/jwt",
+                    //     SameSite = SameSiteMode.Lax,
+                    //     SecurePolicy = CookieSecurePolicy.SameAsRequest
+                    // };
                 });
         }
     }
