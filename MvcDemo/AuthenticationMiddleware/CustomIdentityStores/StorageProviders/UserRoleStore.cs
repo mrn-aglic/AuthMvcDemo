@@ -2,7 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.Interfaces;
+using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.BaseClasses;
 
 namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
 {

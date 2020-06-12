@@ -1,7 +1,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.Interfaces;
+using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.BaseClasses;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
 
 namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders

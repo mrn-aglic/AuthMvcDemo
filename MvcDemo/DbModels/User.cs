@@ -1,4 +1,4 @@
-using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.Interfaces;
+using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.BaseClasses;
 
 namespace MvcDemo.DbModels
 {

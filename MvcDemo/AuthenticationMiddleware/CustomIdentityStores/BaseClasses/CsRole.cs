@@ -1,4 +1,4 @@
-namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.Interfaces
+namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.BaseClasses
 {
     public class CsRole<T>
     {

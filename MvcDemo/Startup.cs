@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.Interfaces;
+using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.BaseClasses;
 using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders;
 using MvcDemo.DbModels;
 using MvcDemo.MiddlewareExtensions;
