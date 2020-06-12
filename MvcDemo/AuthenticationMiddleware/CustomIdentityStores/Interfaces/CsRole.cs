@@ -1,6 +1,6 @@
 namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.Interfaces
 {
-    public interface IRole<T>
+    public class CsRole<T>
     {
         public T Id { get; set; }
         public string Name { get; set; }

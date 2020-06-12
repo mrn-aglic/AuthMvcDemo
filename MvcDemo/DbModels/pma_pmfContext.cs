@@ -1,10 +1,9 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
+using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders;
 
 namespace MvcDemo.DbModels
 {
-    public partial class pma_pmfContext : DbContext
+    public partial class pma_pmfContext : AuthDbContext<int, int>
     {
         public pma_pmfContext()
         {

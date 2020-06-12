@@ -1,8 +1,6 @@
-using System.Collections.Generic;
-
 namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.Interfaces
 {
-    public interface IUser<T>
+    public class CsUser<T>
     {
         public T Id { get; set; }
         public string Email { get; set; }

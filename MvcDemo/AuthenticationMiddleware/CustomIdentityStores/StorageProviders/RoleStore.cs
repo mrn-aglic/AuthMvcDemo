@@ -5,58 +5,58 @@ using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.Interfaces;
 
 namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
 {
-    public class RoleStore<T> : IRoleStore<IRole<T>>
+    public class RoleStore<T> : IRoleStore<CsRole<T>>
     {
         public void Dispose()
         {
         }
 
-        public Task<IdentityResult> CreateAsync(IRole<T> role, CancellationToken cancellationToken)
+        public Task<IdentityResult> CreateAsync(CsRole<T> csRole, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<IdentityResult> UpdateAsync(IRole<T> role, CancellationToken cancellationToken)
+        public Task<IdentityResult> UpdateAsync(CsRole<T> csRole, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<IdentityResult> DeleteAsync(IRole<T> role, CancellationToken cancellationToken)
+        public Task<IdentityResult> DeleteAsync(CsRole<T> csRole, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<string> GetRoleIdAsync(IRole<T> role, CancellationToken cancellationToken)
+        public Task<string> GetRoleIdAsync(CsRole<T> csRole, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<string> GetRoleNameAsync(IRole<T> role, CancellationToken cancellationToken)
+        public Task<string> GetRoleNameAsync(CsRole<T> csRole, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task SetRoleNameAsync(IRole<T> role, string roleName, CancellationToken cancellationToken)
+        public Task SetRoleNameAsync(CsRole<T> csRole, string roleName, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<string> GetNormalizedRoleNameAsync(IRole<T> role, CancellationToken cancellationToken)
+        public Task<string> GetNormalizedRoleNameAsync(CsRole<T> csRole, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task SetNormalizedRoleNameAsync(IRole<T> role, string normalizedName, CancellationToken cancellationToken)
+        public Task SetNormalizedRoleNameAsync(CsRole<T> csRole, string normalizedName, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<IRole<T>> FindByIdAsync(string roleId, CancellationToken cancellationToken)
+        public Task<CsRole<T>> FindByIdAsync(string roleId, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<IRole<T>> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
+        public Task<CsRole<T>> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }

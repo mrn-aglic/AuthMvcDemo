@@ -6,34 +6,49 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
 
 namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
 {
-    public class AuthDbContext<T, U, V> : DbContext where T : DbContext
+    public class AuthDbContext<T, U> : DbContext
     {
-        public DbSet<IUser<U>> User { get; set; }
-        public DbSet<IRole<V>> Role { get; set; }
-        public DbSet<IUserRole<U, V>> UserRole { get; set; }
+        public virtual DbSet<CsUser<T>> User { get; set; }
+        public virtual DbSet<CsRole<U>> Role { get; set; }
+        public virtual DbSet<CsUserRole<T, U>> UserRole { get; set; }
 
-        private static DbContextOptions<AuthDbContext<T, U, V>> GetNewOptions(DbContextOptions<T> options)
-        {
-            var sqlExtensions = options.Extensions.OfType<SqlServerOptionsExtension>();
-            var npgsqlExtensions = options.Extensions.OfType<NpgsqlOptionsExtension>();
-
-            var builder = new DbContextOptionsBuilder<AuthDbContext<T, U, V>>();
-            var sqlConnString = sqlExtensions.FirstOrDefault(e => e.ConnectionString != null)?.ConnectionString;
-            var npgsqlConnString = npgsqlExtensions.FirstOrDefault(e => e.ConnectionString != null)?.ConnectionString;
-
-            if (!string.IsNullOrEmpty(sqlConnString)) builder.UseSqlServer(sqlConnString);
-            if (!string.IsNullOrEmpty(npgsqlConnString)) builder.UseNpgsql(npgsqlConnString);
-
-            return builder.Options;
-        }
+        // public static DbContextOptions<AuthDbContext<T, U>> GetNewOptions<T>(
+        //     DbContextOptions<T> options) where T : DbContext
+        // {
+        //     var sqlExtensions = options.Extensions.OfType<SqlServerOptionsExtension>();
+        //     var npgsqlExtensions = options.Extensions.OfType<NpgsqlOptionsExtension>();
+        //
+        //     var builder = new DbContextOptionsBuilder<AuthDbContext<T, U>>();
+        //     var sqlConnString = sqlExtensions.FirstOrDefault(e => e.ConnectionString != null)?.ConnectionString;
+        //     var npgsqlConnString = npgsqlExtensions.FirstOrDefault(e => e.ConnectionString != null)?.ConnectionString;
+        //
+        //     if (!string.IsNullOrEmpty(sqlConnString)) builder.UseSqlServer(sqlConnString);
+        //     if (!string.IsNullOrEmpty(npgsqlConnString)) builder.UseNpgsql(npgsqlConnString);
+        //
+        //     return builder.Options;
+        // }
 
         public AuthDbContext()
         {
         }
 
-        public AuthDbContext(DbContextOptions<T> options)
-            : base(GetNewOptions(options))
+        public AuthDbContext(DbContextOptions<AuthDbContext<int, int>> options) : base(options)
         {
+        }
+
+        protected AuthDbContext(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<CsUserRole<T, U>>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.RoleId })
+                    .HasName("user_role_pk");
+            });
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

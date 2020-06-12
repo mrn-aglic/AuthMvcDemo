@@ -1,8 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.Interfaces;
+using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders;
+using MvcDemo.DbModels;
 using MvcDemo.MiddlewareExtensions;
 
 namespace MvcDemo
@@ -21,11 +26,26 @@ namespace MvcDemo
             services.RegisterAuthentication("app", Configuration);
         }
 
+        private void SetupDbContext(IServiceCollection services)
+        {
+            services.AddDbContext<AuthDbContext<int, int>>(opt =>
+                opt.UseInMemoryDatabase("pma"));
+            services.AddDbContext<pma_pmfContext>(opt =>
+                opt.UseInMemoryDatabase("pma"));
+
+            services.AddIdentity<CsUser<int>, CsRole<int>>();
+            services.AddTransient<IUserStore<CsUser<int>>, UserStore<int, int>>();
+            // services.AddTransient<IUserRoleStore<IUserRole<int, int>>, UserRoleStore<pma_pmfContext, int, int>>()
+            services.AddTransient<IRoleStore<CsRole<int>>, RoleStore<int>>();
+        }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().AddNewtonsoftJson();
             ConfigureAuthentication(services);
+
+            SetupDbContext(services);
 
             services.AddControllersWithViews();
         }
