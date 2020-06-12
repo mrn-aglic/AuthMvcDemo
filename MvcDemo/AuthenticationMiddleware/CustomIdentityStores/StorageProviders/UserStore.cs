@@ -53,24 +53,19 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
                 u.Id.ToString() == userId, cancellationToken);
         }
 
-        private string GetUsername(IUser<U> user)
+        public async Task<IUser<U>> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
-            return user.Email.Substring(0,
-                user.Email.IndexOf("@", StringComparison.Ordinal)
-            ).ToLowerInvariant();
+            cancellationToken.ThrowIfCancellationRequested();
+            return await
+                _dbContext.User
+                    .SingleOrDefaultAsync(
+                        u => u.Username.ToLowerInvariant() == normalizedUserName,
+                        cancellationToken);
         }
 
-        public Task<IUser<U>> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
+        public async Task<string> GetNormalizedUserNameAsync(IUser<U> user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
-            // cancellationToken.ThrowIfCancellationRequested();
-            // return await _dbContext.User.SingleOrDefaultAsync(u => GetUsername(u) == normalizedUserName,
-            //     cancellationToken);
-        }
-
-        public Task<string> GetNormalizedUserNameAsync(IUser<U> user, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
+            return await Task.FromResult(user.Username.ToLowerInvariant());
         }
 
         public async Task<string> GetUserIdAsync(IUser<U> user, CancellationToken cancellationToken)
@@ -78,21 +73,21 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
             return await Task.FromResult(user.Id.ToString());
         }
 
-        public Task<string> GetUserNameAsync(IUser<U> user, CancellationToken cancellationToken)
+        public async Task<string> GetUserNameAsync(IUser<U> user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return await Task.FromResult(user.Username);
         }
 
         public Task SetNormalizedUserNameAsync(IUser<U> user, string normalizedName,
             CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
-            // return Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public Task SetUserNameAsync(IUser<U> user, string userName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            user.Username = userName;
+            return Task.CompletedTask;
         }
 
         public async Task<IdentityResult> UpdateAsync(IUser<U> user, CancellationToken cancellationToken)
