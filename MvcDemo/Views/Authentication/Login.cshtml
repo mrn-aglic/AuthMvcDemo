@@ -11,4 +11,7 @@
 
 <h2>title</h2>
 
-<input type="button" onclick="login()"/>
+<form method="post" asp-controller="Authentication" asp-action="Register" class="form-group-lg form-horizontal">
+    <button type="submit" class="btn btn-lg btn-success">Login</button>
+</form>
+<input type="button" value="Login" onclick="login()"/>

@@ -27,7 +27,8 @@ namespace MvcDemo.Controllers
             );
             await HttpContext.SignInAsync(accessTokenResult.ClaimsPrincipal,
                 accessTokenResult.AuthProperties);
-            return Ok();
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+            // return Ok();
         }
     }
 }

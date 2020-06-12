@@ -29,7 +29,10 @@ namespace MvcDemo.MiddlewareExtensions
 
             var serviceProvider = services.BuildServiceProvider();
             var serializer = serviceProvider.GetService<IDataSerializer<AuthenticationTicket>>();
-            var dataProtector = serviceProvider.GetService<IDataProtector>();
+            var dataProtector = serviceProvider.GetDataProtector(new[]
+            {
+                $"{appDiscriminator}-Auth1"
+            });
 
             services.Configure<CookiePolicyOptions>(opt =>
             {
@@ -50,7 +53,7 @@ namespace MvcDemo.MiddlewareExtensions
                     opt.Cookie = new CookieBuilder
                     {
                         Name = ".pma.vj12.Cookie",
-                        Expiration = TimeSpan.FromMinutes(20)
+                        // Expiration = TimeSpan.FromMinutes(20)
                     };
                 });
         }
