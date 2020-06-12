@@ -25,7 +25,11 @@ namespace MvcDemo.MiddlewareExtensions
 
             services.AddScoped<IDataSerializer<AuthenticationTicket>, TicketSerializer>();
 
-            services.AddScoped(serviceProvider => new JwtGenerator(jwtConfig));
+            services.AddScoped(sp => new JwtGenerator(jwtConfig));
+
+            var serviceProvider = services.BuildServiceProvider();
+            var serializer = serviceProvider.GetService<IDataSerializer<AuthenticationTicket>>();
+            var dataProtector = serviceProvider.GetService<IDataProtector>();
 
             services.Configure<CookiePolicyOptions>(opt =>
             {
@@ -38,6 +42,7 @@ namespace MvcDemo.MiddlewareExtensions
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(opt =>
                 {
+                    opt.TicketDataFormat = JwtAuthTicketFormat.Create(jwtConfig, serializer, dataProtector);
                     opt.LoginPath = "/login";
                     opt.LogoutPath = "/logout";
                     opt.AccessDeniedPath = "/login";

@@ -5,4 +5,12 @@
     Layout = "_Layout";
 }
 
+<script type="text/javascript">
+    function login() {
+      axios.post('/api/authentication/register').then(resp => console.log(resp));
+    }
+</script>
+
 <h2>title</h2>
+
+<input type="button" onclick="login()"/>
