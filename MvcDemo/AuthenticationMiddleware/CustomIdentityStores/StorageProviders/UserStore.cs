@@ -94,7 +94,8 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
         public async Task<IdentityResult> UpdateAsync(CsUser<T> csUser, CancellationToken cancellationToken)
         {
             ThrowCheck(csUser, cancellationToken);
-            _dbContext.User.Update(csUser);
+            var user = await _dbContext.User.FindAsync(csUser.Id, cancellationToken);
+            _dbContext.User.Update(user);
             var result = await _dbContext.SaveChangesAsync(cancellationToken);
             return GetIdentityResult(result, $"Could not update user: {csUser.Email}");
         }
@@ -152,7 +153,8 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
             return Task.FromResult(csUser.Email.ToUpper());
         }
 
-        public Task SetNormalizedEmailAsync(CsUser<T> csUser, string normalizedEmail, CancellationToken cancellationToken)
+        public Task SetNormalizedEmailAsync(CsUser<T> csUser, string normalizedEmail,
+            CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
             // user.Email = normalizedEmail;
