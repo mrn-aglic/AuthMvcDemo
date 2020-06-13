@@ -11,11 +11,10 @@ namespace MvcDemo.DbModels
         }
 
         public int Id { get; set; }
-        public string Firstname { get; set; }
-        public string Lastname { get; set; }
-        public string Email { get; set; }
-        public int? Jmbag { get; set; }
+        public string Jmbag { get; set; }
+        public int UserId { get; set; }
 
+        public virtual User User { get; set; }
         public virtual ICollection<StudentCourse> StudentCourse { get; set; }
     }
 }

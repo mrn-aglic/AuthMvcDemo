@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace MvcDemo.DbModels
 {
-    public partial class pma_pmfContext : AuthDbContext<int, int>
+    public partial class pma_pmfContext : DbContext
     {
         public pma_pmfContext()
         {
@@ -16,15 +17,18 @@ namespace MvcDemo.DbModels
 
         public virtual DbSet<Course> Course { get; set; }
         public virtual DbSet<Department> Department { get; set; }
+        public virtual DbSet<Role> Role { get; set; }
         public virtual DbSet<Student> Student { get; set; }
         public virtual DbSet<StudentCourse> StudentCourse { get; set; }
+        public virtual DbSet<User> User { get; set; }
+        public virtual DbSet<UserRole> UserRole { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=(LocalDB)\\MSSQLLocalDB;Database=pma_pmf;Trusted_Connection=True;");
+                optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=pma_pmf");
             }
         }
 
@@ -34,43 +38,40 @@ namespace MvcDemo.DbModels
             {
                 entity.ToTable("course");
 
+                entity.HasIndex(e => e.Id)
+                    .HasName("course_id_uindex")
+                    .IsUnique();
+
                 entity.HasIndex(e => e.Isvu)
-                    .HasName("UQ__course__99F80E064C8FC82C")
+                    .HasName("course_isvu_uindex")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.DepartmentId).HasColumnName("departmentId");
+                entity.Property(e => e.DepartmentId).HasColumnName("department_id");
 
                 entity.Property(e => e.Ects).HasColumnName("ects");
 
                 entity.Property(e => e.Isvu)
                     .IsRequired()
-                    .HasColumnName("isvu")
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
+                    .HasColumnName("isvu");
 
                 entity.Property(e => e.Level)
                     .IsRequired()
-                    .HasColumnName("level")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .HasColumnName("level");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
-                    .HasColumnName("name")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .HasColumnName("name");
 
                 entity.Property(e => e.Shortname)
                     .IsRequired()
-                    .HasColumnName("shortname")
-                    .HasMaxLength(10)
-                    .IsFixedLength();
+                    .HasColumnName("shortname");
 
                 entity.HasOne(d => d.Department)
                     .WithMany(p => p.Course)
                     .HasForeignKey(d => d.DepartmentId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("course_department_id_fk");
             });
 
@@ -78,46 +79,66 @@ namespace MvcDemo.DbModels
             {
                 entity.ToTable("department");
 
+                entity.HasIndex(e => e.Id)
+                    .HasName("department_id_uindex")
+                    .IsUnique();
+
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
-                    .HasColumnName("name")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .HasColumnName("name");
 
                 entity.Property(e => e.Shortname)
                     .IsRequired()
-                    .HasColumnName("shortname")
-                    .HasMaxLength(10)
-                    .IsFixedLength();
+                    .HasColumnName("shortname");
+            });
+
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("role");
+
+                entity.HasIndex(e => e.Id)
+                    .HasName("role_id_uindex")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasColumnName("name");
             });
 
             modelBuilder.Entity<Student>(entity =>
             {
                 entity.ToTable("student");
 
+                entity.HasIndex(e => e.Id)
+                    .HasName("student_id_uindex")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Jmbag)
+                    .HasName("student_jmbag_uindex")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.UserId)
+                    .HasName("student_user_id_uindex")
+                    .IsUnique();
+
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.Email)
+                entity.Property(e => e.Jmbag)
                     .IsRequired()
-                    .HasColumnName("email")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                    .HasColumnName("jmbag");
 
-                entity.Property(e => e.Firstname)
-                    .IsRequired()
-                    .HasColumnName("firstname")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                entity.Property(e => e.UserId).HasColumnName("user_id");
 
-                entity.Property(e => e.Jmbag).HasColumnName("jmbag");
-
-                entity.Property(e => e.Lastname)
-                    .IsRequired()
-                    .HasColumnName("lastname")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                entity.HasOne(d => d.User)
+                    .WithOne(p => p.Student)
+                    .HasPrincipalKey<User>(p => p.Id)
+                    .HasForeignKey<Student>(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("student_user_id_fk");
             });
 
             modelBuilder.Entity<StudentCourse>(entity =>
@@ -142,6 +163,74 @@ namespace MvcDemo.DbModels
                     .HasForeignKey(d => d.StudentId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("student_course_student_id_fk");
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("user");
+
+                entity.HasIndex(e => e.Email)
+                    .HasName("user_email_uindex")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Id)
+                    .HasName("user_id_uindex")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Username)
+                    .HasName("user_username_uindex")
+                    .IsUnique();
+
+                entity.Property(e => e.Email)
+                    .IsRequired()
+                    .HasColumnName("email");
+
+                entity.Property(e => e.Firstname)
+                    .IsRequired()
+                    .HasColumnName("firstname");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Lastname)
+                    .IsRequired()
+                    .HasColumnName("lastname");
+
+                entity.Property(e => e.PasswordHash)
+                    .IsRequired()
+                    .HasColumnName("password_hash");
+
+                entity.Property(e => e.Username)
+                    .IsRequired()
+                    .HasColumnName("username");
+            });
+
+            modelBuilder.Entity<UserRole>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.RoleId })
+                    .HasName("user_role_pk");
+
+                entity.ToTable("user_role");
+
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+
+                entity.Property(e => e.RoleId).HasColumnName("role_id");
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.UserRole)
+                    .HasForeignKey(d => d.RoleId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("user_role_role_id_fk");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserRole)
+                    .HasPrincipalKey(p => p.Id)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("user_role_user_id_fk");
             });
 
             OnModelCreatingPartial(modelBuilder);
