@@ -14,7 +14,6 @@ namespace MvcDemo.DbModels
         public string Jmbag { get; set; }
         public int UserId { get; set; }
 
-        public virtual User User { get; set; }
         public virtual ICollection<StudentCourse> StudentCourse { get; set; }
     }
 }

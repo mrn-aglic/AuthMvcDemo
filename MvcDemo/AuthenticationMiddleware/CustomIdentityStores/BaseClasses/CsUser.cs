@@ -1,12 +1,14 @@
 namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.BaseClasses
 {
-    public class CsUser<T>
+    public interface CsUser<T>
     {
-        public virtual T Id { get; set; }
-        public virtual string Email { get; set; }
-        public virtual string Username { get; set; }
-        public virtual string PasswordHash { get; set; }
+        public T Id { get; set; }
+        public string Email { get; set; }
+        public string Username { get; set; }
+        public string PasswordHash { get; set; }
         
+        // public ICollection<U> UserRole { get; set; }
+
         // public IEnumerable<>
     }
 }

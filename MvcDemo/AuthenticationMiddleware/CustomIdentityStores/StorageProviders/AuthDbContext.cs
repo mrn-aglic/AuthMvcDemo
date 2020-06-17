@@ -10,7 +10,7 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
     {
         public virtual DbSet<CsUser<T>> User { get; set; }
         public virtual DbSet<CsRole<U>> Role { get; set; }
-        public virtual DbSet<CsUserRole<T, U>> UserRole { get; set; }
+        public virtual DbSet<CsUserRole<CsUser<T>, T, CsRole<U>, U>> UserRole { get; set; }
 
         // public static DbContextOptions<AuthDbContext<T, U>> GetNewOptions<T>(
         //     DbContextOptions<T> options) where T : DbContext
@@ -43,11 +43,11 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CsUserRole<T, U>>(entity =>
-            {
-                entity.HasKey(e => new { e.UserId, e.RoleId })
-                    .HasName("user_role_pk");
-            });
+            // modelBuilder.Entity<CsUserRole<T, U>>(entity =>
+            // {
+            //     entity.HasKey(e => new { e.UserId, e.RoleId })
+            //         .HasName("user_role_pk");
+            // });
             base.OnModelCreating(modelBuilder);
         }
     }

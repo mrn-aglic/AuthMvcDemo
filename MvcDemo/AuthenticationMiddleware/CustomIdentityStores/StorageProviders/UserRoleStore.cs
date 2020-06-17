@@ -5,7 +5,7 @@ using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.BaseClasses;
 
 namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
 {
-    public class UserRoleStore<T, U> : StoreBase, IRoleStore<CsUserRole<T, U>>
+    public class UserRoleStore<T, U> : StoreBase, IRoleStore<CsUserRole<CsUser<T>, T, CsRole<U>, U>>
     {
         private readonly AuthDbContext<T, U> _dbContext;
 
@@ -19,7 +19,8 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
             _dbContext?.Dispose();
         }
 
-        public async Task<IdentityResult> CreateAsync(CsUserRole<T, U> role, CancellationToken cancellationToken)
+        public async Task<IdentityResult> CreateAsync(CsUserRole<CsUser<T>, T, CsRole<U>, U> role,
+            CancellationToken cancellationToken)
         {
             ThrowCheck(role, cancellationToken);
             await _dbContext.UserRole.AddAsync(role, cancellationToken);
@@ -28,7 +29,7 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
             return GetIdentityResult(result, $"Could not assign user-role: {role.UserId}-{role.RoleId}");
         }
 
-        public async Task<IdentityResult> UpdateAsync(CsUserRole<T, U> role, CancellationToken cancellationToken)
+        public async Task<IdentityResult> UpdateAsync(CsUserRole<CsUser<T>, T, CsRole<U>, U> role, CancellationToken cancellationToken)
         {
             ThrowCheck(role, cancellationToken);
             _dbContext.UserRole.Update(role);
@@ -37,7 +38,7 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
             return GetIdentityResult(result, $"Could not assign user-role: {role.UserId}-{role.RoleId}");
         }
 
-        public async Task<IdentityResult> DeleteAsync(CsUserRole<T, U> role, CancellationToken cancellationToken)
+        public async Task<IdentityResult> DeleteAsync(CsUserRole<CsUser<T>, T, CsRole<U>, U> role, CancellationToken cancellationToken)
         {
             ThrowCheck(role, cancellationToken);
             _dbContext.UserRole.Remove(role);
@@ -46,38 +47,38 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
             return GetIdentityResult(result, $"Could not delete user-role: {role.UserId}-{role.RoleId}");
         }
 
-        public Task<string> GetRoleIdAsync(CsUserRole<T, U> role, CancellationToken cancellationToken)
+        public Task<string> GetRoleIdAsync(CsUserRole<CsUser<T>, T, CsRole<U>, U> role, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<string> GetRoleNameAsync(CsUserRole<T, U> role, CancellationToken cancellationToken)
+        public Task<string> GetRoleNameAsync(CsUserRole<CsUser<T>, T, CsRole<U>, U> role, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task SetRoleNameAsync(CsUserRole<T, U> role, string roleName, CancellationToken cancellationToken)
+        public Task SetRoleNameAsync(CsUserRole<CsUser<T>, T, CsRole<U>, U> role, string roleName, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<string> GetNormalizedRoleNameAsync(CsUserRole<T, U> role, CancellationToken cancellationToken)
+        public Task<string> GetNormalizedRoleNameAsync(CsUserRole<CsUser<T>, T, CsRole<U>, U> role, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task SetNormalizedRoleNameAsync(CsUserRole<T, U> role, string normalizedName,
+        public Task SetNormalizedRoleNameAsync(CsUserRole<CsUser<T>, T, CsRole<U>, U> role, string normalizedName,
             CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<CsUserRole<T, U>> FindByIdAsync(string roleId, CancellationToken cancellationToken)
+        public Task<CsUserRole<CsUser<T>, T, CsRole<U>, U>> FindByIdAsync(string roleId, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<CsUserRole<T, U>> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
+        public Task<CsUserRole<CsUser<T>, T, CsRole<U>, U>> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }

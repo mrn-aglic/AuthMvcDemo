@@ -28,15 +28,32 @@ namespace MvcDemo
 
         private void SetupDbContext(IServiceCollection services)
         {
-            services.AddDbContext<AuthDbContext<int, int>>(opt =>
-                opt.UseInMemoryDatabase("pma"));
-            services.AddDbContext<pma_pmfContext>(opt =>
-                opt.UseInMemoryDatabase("pma"));
+            // services.AddDbContext<AuthDbContext<int, int>>(opt =>
+            //     opt.UseInMemoryDatabase("pma"));
+            // services.AddDbContext<pma_pmfContext>(opt =>
+            //     opt.UseInMemoryDatabase("pma"));
 
-            services.AddIdentity<CsUser<int>, CsRole<int>>();
-            services.AddTransient<IUserStore<CsUser<int>>, UserStore<int, int>>();
+            var connString = Configuration.GetConnectionString("pma_postgres");
+            services.AddDbContext<AuthDbContext<int, int>>(opt =>
+                opt.UseNpgsql(connString));
+            services.AddDbContext<pma_pmfContext>(opt => opt.UseNpgsql(connString));
+
+            // services.AddScoped<CsUser<int>>();
+            // services.AddScoped<CsRole<int>>();
+
+            services.AddIdentity<Appuser, Role>();
+            services.AddTransient<IUserStore<Appuser>>(opt =>
+            {
+                var dbContext = opt.GetService<pma_pmfContext>();
+                return new UserStore<Appuser, int, Role, int, UserRole>
+                    (dbContext, dbContext.Appuser, dbContext.Role, dbContext.UserRole);
+            });
             // services.AddTransient<IUserRoleStore<IUserRole<int, int>>, UserRoleStore<pma_pmfContext, int, int>>()
-            services.AddTransient<IRoleStore<CsRole<int>>, RoleStore<int>>();
+            services.AddTransient<IRoleStore<Role>>(opt =>
+            {
+                var dbContext = opt.GetService<pma_pmfContext>();
+                return new RoleStore<Role, int>(dbContext, dbContext.Role);
+            });
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.

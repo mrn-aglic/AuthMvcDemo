@@ -5,15 +5,20 @@ using Microsoft.AspNetCore.Mvc;
 using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.BaseClasses;
 using MvcDemo.AuthenticationMiddleware.JwtService;
 using MvcDemo.DbModels;
+using MvcDemo.Models.AuthModels;
 
 namespace MvcDemo.Controllers
 {
     public class AuthenticationController : Controller
     {
         private readonly JwtGenerator _jwtGenerator;
-        private readonly UserManager<CsUser<int>> _userManager;
+        private readonly UserManager<Appuser> _userManager;
 
-        public AuthenticationController(JwtGenerator jwtGenerator, UserManager<CsUser<int>> userManager)
+        public AuthenticationController
+        (
+            JwtGenerator jwtGenerator,
+            UserManager<Appuser> userManager
+        )
         {
             _jwtGenerator = jwtGenerator;
             _userManager = userManager;
@@ -25,21 +30,31 @@ namespace MvcDemo.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Register()
+        public async Task<ActionResult> Register([FromForm] RegistrationModel registrationModel)
         {
-            var user = await _userManager.CreateAsync(new User
+            if (!ModelState.IsValid)
             {
-                Email = "test@test.com",
-                Username = "test",
-                PasswordHash = "password"
-            });
+                return RedirectToAction(nameof(Login), "Authentication");
+            }
 
-            var accessTokenResult = _jwtGenerator.Generate(
-                "0",
-                "test",
-                "test@test.com",
-                new[] {"Admin"}
-            );
+            var user = new Appuser
+            {
+                Firstname = registrationModel.Firstname,
+                Lastname = registrationModel.Lastname,
+                Username = registrationModel.Username,
+                Email = registrationModel.Email,
+                PasswordHash = registrationModel.Password
+            };
+            var result = await _userManager.CreateAsync(user);
+
+            var accessTokenResult = _jwtGenerator.Generate(user.Id.ToString(), user.Username, user.Email,
+                new[] {"Admin"});
+            // var accessTokenResult = _jwtGenerator.Generate(
+            // "0",
+            // "test",
+            // "test@test.com",
+            // new[] {"Admin"}
+            // );
             await HttpContext.SignInAsync(accessTokenResult.ClaimsPrincipal,
                 accessTokenResult.AuthProperties);
             return RedirectToAction(nameof(HomeController.Index), "Home");

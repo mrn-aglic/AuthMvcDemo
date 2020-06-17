@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.BaseClasses;
+using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders;
 
 namespace MvcDemo.DbModels
 {
@@ -15,12 +17,12 @@ namespace MvcDemo.DbModels
         {
         }
 
+        public virtual DbSet<Appuser> Appuser { get; set; }
         public virtual DbSet<Course> Course { get; set; }
         public virtual DbSet<Department> Department { get; set; }
         public virtual DbSet<Role> Role { get; set; }
         public virtual DbSet<Student> Student { get; set; }
         public virtual DbSet<StudentCourse> StudentCourse { get; set; }
-        public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserRole> UserRole { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -34,6 +36,47 @@ namespace MvcDemo.DbModels
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Appuser>(entity =>
+            {
+                entity.ToTable("appuser");
+
+                entity.HasIndex(e => e.Email)
+                    .HasName("appuser_email_uindex")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Id)
+                    .HasName("appuser_id_uindex")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Username)
+                    .HasName("appuser_username_uindex")
+                    .IsUnique();
+
+                entity.Property(e => e.Email)
+                    .IsRequired()
+                    .HasColumnName("email");
+
+                entity.Property(e => e.Firstname)
+                    .IsRequired()
+                    .HasColumnName("firstname");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Lastname)
+                    .IsRequired()
+                    .HasColumnName("lastname");
+
+                entity.Property(e => e.PasswordHash)
+                    .IsRequired()
+                    .HasColumnName("password_hash");
+
+                entity.Property(e => e.Username)
+                    .IsRequired()
+                    .HasColumnName("username");
+            });
+
             modelBuilder.Entity<Course>(entity =>
             {
                 entity.ToTable("course");
@@ -132,13 +175,6 @@ namespace MvcDemo.DbModels
                     .HasColumnName("jmbag");
 
                 entity.Property(e => e.UserId).HasColumnName("user_id");
-
-                entity.HasOne(d => d.User)
-                    .WithOne(p => p.Student)
-                    .HasPrincipalKey<User>(p => p.Id)
-                    .HasForeignKey<Student>(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("student_user_id_fk");
             });
 
             modelBuilder.Entity<StudentCourse>(entity =>
@@ -165,49 +201,6 @@ namespace MvcDemo.DbModels
                     .HasConstraintName("student_course_student_id_fk");
             });
 
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.ToTable("user");
-
-                entity.HasIndex(e => e.Email)
-                    .HasName("user_email_uindex")
-                    .IsUnique();
-
-                entity.HasIndex(e => e.Id)
-                    .HasName("user_id_uindex")
-                    .IsUnique();
-
-                entity.HasIndex(e => e.Username)
-                    .HasName("user_username_uindex")
-                    .IsUnique();
-
-                entity.Property(e => e.Email)
-                    .IsRequired()
-                    .HasColumnName("email");
-
-                entity.Property(e => e.Firstname)
-                    .IsRequired()
-                    .HasColumnName("firstname");
-
-                entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .ValueGeneratedOnAdd();
-
-                entity.Property(e => e.Lastname)
-                    .IsRequired()
-                    .HasColumnName("lastname");
-
-                entity.Property(e => e.PasswordHash)
-                    .IsRequired()
-                    .HasColumnName("password_hash");
-
-                entity.Property(e => e.Username)
-                    .IsRequired()
-                    .HasColumnName("username");
-            });
-
             modelBuilder.Entity<UserRole>(entity =>
             {
                 entity.HasKey(e => new { e.UserId, e.RoleId })
@@ -230,9 +223,10 @@ namespace MvcDemo.DbModels
                     .HasPrincipalKey(p => p.Id)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("user_role_user_id_fk");
+                    .HasConstraintName("user_role_appuser_id_fk");
             });
 
+            base.OnModelCreating(modelBuilder);
             OnModelCreatingPartial(modelBuilder);
         }
 

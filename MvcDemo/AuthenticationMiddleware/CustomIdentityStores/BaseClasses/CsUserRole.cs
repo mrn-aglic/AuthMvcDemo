@@ -1,11 +1,20 @@
 namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.BaseClasses
 {
-    public class CsUserRole<T, U>
+    public interface CsUserRole<T, TType, U, UType> where T : class, CsUser<TType> where U : class, CsRole<UType>
     {
-        public T UserId { get; set; }
-        public U RoleId { get; set; }
-        
-        public CsUser<T> CsUser { get; set; }
-        public CsRole<U> CsRole { get; set; }
+        public TType UserId { get; set; }
+        public UType RoleId { get; set; }
+
+        public virtual T CsUser
+        {
+            get { throw new System.NotImplementedException(); }
+            set { throw new System.NotImplementedException(); }
+        }
+
+        public virtual U CsRole
+        {
+            get { throw new System.NotImplementedException(); }
+            set { throw new System.NotImplementedException(); }
+        }
     }
 }

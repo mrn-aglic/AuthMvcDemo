@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.BaseClasses;
 
 namespace MvcDemo.DbModels
 {
-    public partial class Role
+    public partial class Role : CsRole<int>
     {
         public Role()
         {

@@ -9,18 +9,27 @@ using MvcDemo.AuthenticationMiddleware.CustomIdentityStores.BaseClasses;
 
 namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
 {
-    public class UserStore<T, U> : StoreBase,
-        IUserStore<CsUser<T>>,
-        IUserEmailStore<CsUser<T>>,
-        IUserPasswordStore<CsUser<T>>,
-        IUserRoleStore<CsUser<T>>,
-        IQueryableUserStore<CsUser<T>>
+    public class UserStore<T, TType, U, UType, V> : StoreBase,
+        IUserStore<T>,
+        IUserEmailStore<T>,
+        IUserPasswordStore<T>,
+        IUserRoleStore<T>,
+        IQueryableUserStore<T>
+        where T : class, CsUser<TType>
+        where U : class, CsRole<UType>
+        where V : class, CsUserRole<T, TType, U, UType>
     {
-        private readonly AuthDbContext<T, U> _dbContext;
+        private readonly DbContext _dbContext;
+        private readonly DbSet<T> _userSet;
+        private readonly DbSet<U> _roleSet;
+        private readonly DbSet<V> _userRoleSet;
 
-        public UserStore(AuthDbContext<T, U> dbContext)
+        public UserStore(DbContext dbContext, DbSet<T> userSet, DbSet<U> roleSet, DbSet<V> userRoleSet)
         {
             _dbContext = dbContext;
+            _userSet = userSet;
+            _roleSet = roleSet;
+            _userRoleSet = userRoleSet;
         }
 
         public void Dispose()
@@ -28,132 +37,132 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
             _dbContext?.Dispose();
         }
 
-        public async Task<IdentityResult> CreateAsync(CsUser<T> csUser, CancellationToken cancellationToken)
+        public async Task<IdentityResult> CreateAsync(T csUser, CancellationToken cancellationToken)
         {
             ThrowCheck(csUser, cancellationToken);
 
-            await _dbContext.User.AddAsync(csUser, cancellationToken);
+            await _userSet.AddAsync(csUser, cancellationToken);
 
             var result = await _dbContext.SaveChangesAsync(cancellationToken);
             return GetIdentityResult(result, $"Could not create user: {csUser.Email}");
         }
 
-        public async Task<IdentityResult> DeleteAsync(CsUser<T> csUser, CancellationToken cancellationToken)
+        public async Task<IdentityResult> DeleteAsync(T csUser, CancellationToken cancellationToken)
         {
             ThrowCheck(csUser, cancellationToken);
-            var dbUser = await _dbContext.User.FindAsync(csUser.Id);
+            var dbUser = await _userSet.FindAsync(csUser.Id);
             _dbContext.Remove(dbUser);
             var result = await _dbContext.SaveChangesAsync(cancellationToken);
             return GetIdentityResult(result, $"Could not delete user {csUser.Email}");
         }
 
-        public async Task<CsUser<T>> FindByIdAsync(string userId, CancellationToken cancellationToken)
+        public async Task<T> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            return await _dbContext.User.SingleOrDefaultAsync(u =>
+            return await _userSet.SingleOrDefaultAsync(u =>
                 u.Id.ToString() == userId, cancellationToken);
         }
 
-        public async Task<CsUser<T>> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
+        public async Task<T> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             return await
-                _dbContext.User
+                _userSet
                     .SingleOrDefaultAsync(
-                        u => u.Username.ToLowerInvariant() == normalizedUserName,
+                        u => u.Username.ToLower() == normalizedUserName.ToLower(),
                         cancellationToken);
         }
 
-        public async Task<string> GetNormalizedUserNameAsync(CsUser<T> csUser, CancellationToken cancellationToken)
+        public async Task<string> GetNormalizedUserNameAsync(T csUser, CancellationToken cancellationToken)
         {
             return await Task.FromResult(csUser.Username.ToLowerInvariant());
         }
 
-        public async Task<string> GetUserIdAsync(CsUser<T> csUser, CancellationToken cancellationToken)
+        public async Task<string> GetUserIdAsync(T csUser, CancellationToken cancellationToken)
         {
             return await Task.FromResult(csUser.Id.ToString());
         }
 
-        public async Task<string> GetUserNameAsync(CsUser<T> csUser, CancellationToken cancellationToken)
+        public async Task<string> GetUserNameAsync(T csUser, CancellationToken cancellationToken)
         {
             return await Task.FromResult(csUser.Username);
         }
 
-        public Task SetNormalizedUserNameAsync(CsUser<T> csUser, string normalizedName,
+        public Task SetNormalizedUserNameAsync(T csUser, string normalizedName,
             CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }
 
-        public Task SetUserNameAsync(CsUser<T> csUser, string userName, CancellationToken cancellationToken)
+        public Task SetUserNameAsync(T csUser, string userName, CancellationToken cancellationToken)
         {
             csUser.Username = userName;
             return Task.CompletedTask;
         }
 
-        public async Task<IdentityResult> UpdateAsync(CsUser<T> csUser, CancellationToken cancellationToken)
+        public async Task<IdentityResult> UpdateAsync(T csUser, CancellationToken cancellationToken)
         {
             ThrowCheck(csUser, cancellationToken);
-            var user = await _dbContext.User.FindAsync(csUser.Id, cancellationToken);
-            _dbContext.User.Update(user);
+            var user = await _userSet.FindAsync(csUser.Id, cancellationToken);
+            _userSet.Update(user);
             var result = await _dbContext.SaveChangesAsync(cancellationToken);
             return GetIdentityResult(result, $"Could not update user: {csUser.Email}");
         }
 
-        public Task SetPasswordHashAsync(CsUser<T> csUser, string passwordHash, CancellationToken cancellationToken)
+        public Task SetPasswordHashAsync(T csUser, string passwordHash, CancellationToken cancellationToken)
         {
             csUser.PasswordHash = passwordHash;
             return Task.CompletedTask;
         }
 
-        public async Task<string> GetPasswordHashAsync(CsUser<T> csUser, CancellationToken cancellationToken)
+        public async Task<string> GetPasswordHashAsync(T csUser, CancellationToken cancellationToken)
         {
             return await Task.FromResult(csUser.PasswordHash);
         }
 
-        public async Task<bool> HasPasswordAsync(CsUser<T> csUser, CancellationToken cancellationToken)
+        public async Task<bool> HasPasswordAsync(T csUser, CancellationToken cancellationToken)
         {
             return await Task.FromResult(!string.IsNullOrWhiteSpace(csUser.PasswordHash));
         }
 
-        public Task SetEmailAsync(CsUser<T> csUser, string email, CancellationToken cancellationToken)
+        public Task SetEmailAsync(T csUser, string email, CancellationToken cancellationToken)
         {
             ThrowCheck(csUser, cancellationToken);
             csUser.Email = email;
             return Task.CompletedTask;
         }
 
-        public Task<string> GetEmailAsync(CsUser<T> csUser, CancellationToken cancellationToken)
+        public Task<string> GetEmailAsync(T csUser, CancellationToken cancellationToken)
         {
             ThrowCheck(csUser, cancellationToken);
             return Task.FromResult(csUser.Email);
         }
 
-        public Task<bool> GetEmailConfirmedAsync(CsUser<T> csUser, CancellationToken cancellationToken)
+        public Task<bool> GetEmailConfirmedAsync(T csUser, CancellationToken cancellationToken)
         {
             ThrowCheck(csUser, cancellationToken);
             return Task.FromResult(true);
         }
 
-        public Task SetEmailConfirmedAsync(CsUser<T> csUser, bool confirmed, CancellationToken cancellationToken)
+        public Task SetEmailConfirmedAsync(T csUser, bool confirmed, CancellationToken cancellationToken)
         {
             ThrowCheck(csUser, cancellationToken);
             return Task.CompletedTask;
         }
 
-        public async Task<CsUser<T>> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
+        public async Task<T> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
-            return await _dbContext.User.SingleOrDefaultAsync(x =>
+            return await _userSet.SingleOrDefaultAsync(x =>
                 x.Email.Equals(normalizedEmail, StringComparison.OrdinalIgnoreCase), cancellationToken);
         }
 
-        public Task<string> GetNormalizedEmailAsync(CsUser<T> csUser, CancellationToken cancellationToken)
+        public Task<string> GetNormalizedEmailAsync(T csUser, CancellationToken cancellationToken)
         {
             ThrowCheck(csUser, cancellationToken);
             return Task.FromResult(csUser.Email.ToUpper());
         }
 
-        public Task SetNormalizedEmailAsync(CsUser<T> csUser, string normalizedEmail,
+        public Task SetNormalizedEmailAsync(T csUser, string normalizedEmail,
             CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
@@ -161,9 +170,9 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
             // return Task.CompletedTask;
         }
 
-        public async Task AddToRoleAsync(CsUser<T> csUser, string roleName, CancellationToken cancellationToken)
+        public async Task AddToRoleAsync(T csUser, string roleName, CancellationToken cancellationToken)
         {
-            var role = await _dbContext.Role.FirstOrDefaultAsync(r => r.Name == roleName,
+            var role = await _roleSet.FirstOrDefaultAsync(r => r.Name == roleName,
                 cancellationToken);
             await _dbContext.AddAsync(new
             {
@@ -174,32 +183,32 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task RemoveFromRoleAsync(CsUser<T> csUser, string roleName, CancellationToken cancellationToken)
+        public async Task RemoveFromRoleAsync(T csUser, string roleName, CancellationToken cancellationToken)
         {
-            var role = await _dbContext.Role.FirstOrDefaultAsync(p => p.Name == roleName,
+            var role = await _roleSet.FirstOrDefaultAsync(p => p.Name == roleName,
                 cancellationToken);
-            _dbContext.Role.Remove(role);
+            _roleSet.Remove(role);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<IList<string>> GetRolesAsync(CsUser<T> csUser, CancellationToken cancellationToken)
+        public async Task<IList<string>> GetRolesAsync(T csUser, CancellationToken cancellationToken)
         {
-            return await _dbContext.UserRole
+            return await _userRoleSet
                 .Where(r => r.UserId.Equals(csUser.Id))
                 .Include(r => r.CsRole)
                 .Select(x => x.CsRole.Name)
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<bool> IsInRoleAsync(CsUser<T> csUser, string roleName, CancellationToken cancellationToken)
+        public async Task<bool> IsInRoleAsync(T csUser, string roleName, CancellationToken cancellationToken)
         {
             var roles = await GetRolesAsync(csUser, cancellationToken);
             return roles.Contains(roleName);
         }
 
-        public async Task<IList<CsUser<T>>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
+        public async Task<IList<T>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
         {
-            return await _dbContext.UserRole
+            return await _userRoleSet
                 .Include(r => r.CsRole)
                 .Include(r => r.CsUser)
                 .Where(r => r.CsRole.Name == roleName)
@@ -207,6 +216,6 @@ namespace MvcDemo.AuthenticationMiddleware.CustomIdentityStores.StorageProviders
                 .ToListAsync(cancellationToken);
         }
 
-        public IQueryable<CsUser<T>> Users => _dbContext.User;
+        public IQueryable<T> Users => _userSet;
     }
 }

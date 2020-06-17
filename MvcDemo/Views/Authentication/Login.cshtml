@@ -12,6 +12,34 @@
 <h2>title</h2>
 
 <form method="post" asp-controller="Authentication" asp-action="Register" class="form-group-lg form-horizontal">
-    <button type="submit" class="btn btn-lg btn-success">Login</button>
+    <div class="form-group">
+        <label for="firstname">First name:</label>
+        <input type="text" id="firstname" name="Firstname" class="form-control" placeholder="First name"/>
+    </div>
+    <div class="form-group">
+        <label for="lastname">Last name:</label>
+        <input type="text" id="lastname" name="Lastname" class="form-control" placeholder="Last name"/>
+    </div>
+    <div class="form-group">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="Username" class="form-control" placeholder="Choose username"/>
+        <small id="username-help">Username must be unique.</small>
+    </div>
+    <div class="form-group">
+        <label for="email">Enter email:</label>
+        <input type="email" id="email" name="Email" class="form-control" placeholder="Enter email"/>
+    </div>
+    <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="Password" class="form-control" placeholder="Password"/>
+        <small id="password-help">Passwprd must be at least 3 characters long.</small>
+    </div>
+    <div class="form-group">
+        <label for="password-confirmation">Confirm password:</label>
+        <input type="password" id="password-confirmation" name="PasswordConfirmation" class="form-control"
+               placeholder="Confirm password"/>
+    </div>
+    <input type="submit" class="btn btn-lg btn-success" value="Register"/>
+    @* <button type="submit" class="btn btn-lg btn-success">Login</button> *@
 </form>
-<input type="button" value="Login" onclick="login()"/>
+@* <input type="button" value="Login" onclick="login()"/> *@
